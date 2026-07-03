@@ -1,0 +1,4 @@
+1/upload docsx and export docsx
+2/file system
+3/handlebars variable autodetect
+4/replace and export
