@@ -12,6 +12,11 @@ contextBridge.exposeInMainWorld('electron', {
   listTemplates: () => ipcRenderer.invoke('list-templates'),
 
   loadTemplate: (path) => ipcRenderer.invoke("load-template", path),
+
+  exportPdf: (html: string) => ipcRenderer.invoke('export-pdf', html),
+
+  getSavePath: (defaultName: string) => ipcRenderer.invoke('get-save-path', defaultName),
+  saveBuffer: (filePath: string, buffer: Buffer) => ipcRenderer.invoke('save-buffer', filePath, buffer),
 })
 
 // --------- Expose some API to the Renderer process ---------

@@ -133,4 +133,45 @@ app.whenReady().then(() => {
     return fs.readFileSync(filePath, 'utf-8')
   })
 
+  ipcMain.handle('export-pdf', async (_event, html: string) => {
+  const result = await dialog.showSaveDialog({
+    filters: [{ name: 'PDF Files', extensions: ['pdf'] }],
+    defaultPath: 'document.pdf'
+  })
+  if (result.canceled || !result.filePath) return
+
+  const pdfWindow = new BrowserWindow({ show: false })
+
+  await pdfWindow.loadURL(
+    `data:text/html;charset=utf-8,${encodeURIComponent(html)}`
+  )
+
+  // wait for content to fully render
+  await new Promise(resolve => setTimeout(resolve, 500))
+
+  const pdfBuffer = await pdfWindow.webContents.printToPDF({
+    pageSize: 'A4',
+    printBackground: true,
+    margins: {
+      marginType: 'none'
+    }
+  })
+
+  fs.writeFileSync(result.filePath, pdfBuffer)
+  pdfWindow.close()
+})
+
+  ipcMain.handle('get-save-path', async (_event, defaultName: string) => {
+    const result = await dialog.showSaveDialog({
+      filters: [{ name: 'PDF Files', extensions: ['pdf'] }],
+      defaultPath: defaultName
+    })
+    if (result.canceled || !result.filePath) return null
+    return result.filePath
+  })
+
+  ipcMain.handle('save-buffer', async (_event, filePath: string, buffer: Buffer) => {
+    fs.writeFileSync(filePath, buffer)
+  })
+
 })
